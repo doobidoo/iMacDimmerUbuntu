@@ -1,7 +1,8 @@
 #include <Arduino.h>
 
 // Define the PWM properties
-const int pwmPin = 23;        // GPIO23/D23 for PWM output
+// const int pwmPin = 23;        // GPIO23/D23 for PWM output (good for ESP32)
+const int pwmPin = 3;        // GPIO3 for PWM output (good for ESP32-C3 Supermini)
 const int pwmFreq = 10000;    // 10kHz PWM frequency
 const int pwmChannel = 0;     // PWM channel (0-15)
 const int pwmResolution = 8;  // 8-bit resolution (0-255)
