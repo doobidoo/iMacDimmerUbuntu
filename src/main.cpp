@@ -16,7 +16,7 @@ void setup() {
   
   // Configure status LED
   pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH); // Turn on LED
+  // digitalWrite(ledPin, HIGH); // Turn on LED
   
   // Configure PWM
   ledcSetup(pwmChannel, pwmFreq, pwmResolution);
@@ -27,8 +27,9 @@ void setup() {
   ledcWrite(pwmChannel, initialBrightness);
 }
 
+String inputBuffer;
+
 void loop() {
-  // Simple heartbeat
   static unsigned long lastBlink = 0;
   if (millis() - lastBlink > 2000) {
     digitalWrite(ledPin, LOW);
@@ -36,32 +37,25 @@ void loop() {
     digitalWrite(ledPin, HIGH);
     lastBlink = millis();
   }
-  
-  // Check for serial data with a simpler approach
+
   while (Serial.available() > 0) {
-    String input = Serial.readStringUntil('\n');
-    input.trim(); // Remove any whitespace
-    
-    // Process the input if it's a number
-    if (input.length() > 0 && isDigit(input.charAt(0))) {
-      int percentBrightness = input.toInt();
-      percentBrightness = constrain(percentBrightness, 0, 100);
-      
-      // Convert to PWM value
-      int pwmValue = map(percentBrightness, 0, 100, 0, 255);
-      
-      // Apply the brightness
-      ledcWrite(pwmChannel, pwmValue);
-      
-      // Blink LED to confirm
-      digitalWrite(ledPin, LOW);
-      delay(100);
-      digitalWrite(ledPin, HIGH);
-      
-      // Try to send confirmation (may not work)
-      Serial.print("Brightness set to: ");
-      Serial.print(percentBrightness);
-      Serial.println("%");
+    char c = Serial.read();
+    if (c == '\n') {
+      inputBuffer.trim();
+      if (inputBuffer.length() > 0 && isDigit(inputBuffer.charAt(0))) {
+        int percentBrightness = constrain(inputBuffer.toInt(), 0, 100);
+        int pwmValue = map(percentBrightness, 0, 100, 0, 255);
+        ledcWrite(pwmChannel, pwmValue);
+
+        digitalWrite(ledPin, LOW);
+        delay(100);
+        digitalWrite(ledPin, HIGH);
+
+        Serial.printf("Brightness set to: %d%%\n", percentBrightness);
+      }
+      inputBuffer = "";  // clear after processing
+    } else {
+      inputBuffer += c;
     }
   }
 }
