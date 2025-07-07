@@ -56,6 +56,7 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 ### 🎛️ **Complete System Integration**
 - **Keyboard shortcuts**: System-wide hotkey support
 - **Systemd service**: Background brightness restoration
+- **Auto-dimmer**: Automatic brightness reduction after idle time
 - **Timer automation**: Scheduled brightness adjustments
 - **Configuration caching**: Performance optimization with smart defaults
 
@@ -88,12 +89,16 @@ iMacDimmerUbuntu/
 │   └── main.cpp                    # ESP32 firmware v1.6.0
 ├── scripts/
 │   ├── imacdisplay_http.py        # Smart discovery Python script
+│   ├── auto_dimmer.py             # Automatic idle-time brightness dimmer
+│   ├── test_auto_dimmer.py        # Auto-dimmer testing suite
 │   ├── ping_test.py               # Network connectivity tests
 │   └── hybrid_test.py             # Communication diagnostics
 ├── systemd/
-│   └── brightness.service         # System service configuration
+│   ├── brightness.service         # System service configuration
+│   └── auto-dimmer.service        # Auto-dimmer service configuration
 ├── DYNAMIC_IP_SOLUTION.md         # Detailed technical documentation
 ├── final_install.sh               # Automated installation script
+├── install_auto_dimmer.sh         # Auto-dimmer installation script
 ├── platformio.ini                 # PlatformIO build configuration
 └── README.md                      # This file
 ```
@@ -208,6 +213,34 @@ Configure in your desktop environment:
 | **Brightness Down** | `imacdisplay.py -d 10` |
 | **Preset Dim** | `imacdisplay.py -s 20` |
 | **Preset Bright** | `imacdisplay.py -s 80` |
+
+### **Auto-Dimmer (Idle Time Control)**
+
+Automatically dims the display after a period of inactivity:
+
+```bash
+# Install and test auto-dimmer
+./install_auto_dimmer.sh
+
+# Test functionality safely
+python3 scripts/test_auto_dimmer.py
+
+# Manual control options
+auto_dimmer.py --minutes 10 --level 5    # Dim to 5% after 10 minutes
+auto_dimmer.py --status                   # Show current status
+auto_dimmer.py --test                     # Test idle detection
+
+# Enable as system service
+sudo systemctl enable auto-dimmer.service
+sudo systemctl start auto-dimmer.service
+```
+
+**Auto-Dimmer Features:**
+- 🕐 **Configurable idle timeout** (default: 10 minutes)
+- 🌙 **Safe minimum brightness** (default: 5%, never completely dark)
+- 👋 **Activity detection** (restores brightness when user returns)
+- 💾 **Configuration persistence** (remembers settings)
+- 🔄 **Graceful recovery** (restores brightness on shutdown)
 
 ## 🔧 Configuration
 

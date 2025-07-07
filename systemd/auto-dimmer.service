@@ -1,0 +1,37 @@
+[Unit]
+Description=iMac Auto-Dimmer Service
+After=multi-user.target network.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/auto_dimmer.py --minutes 10 --level 5 --interval 30
+Restart=always
+RestartSec=10
+User=hkr
+Group=hkr
+Environment=DISPLAY=:0
+Environment=HOME=/home/hkr
+
+# Ensure the service can access X11
+Environment=XAUTHORITY=/home/hkr/.Xauthority
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=auto-dimmer
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/hkr/.config
+
+# Allow graceful shutdown
+TimeoutStopSec=30
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target
