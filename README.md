@@ -8,7 +8,7 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 
 ```
 ┌─────────────────┐    WiFi     ┌──────────────────┐    PWM    ┌─────────────────┐
-│   Ubuntu PC     │◄──────────►│  ESP32-C3 Mini   │◄─────────►│  iMac Display   │
+│   Ubuntu PC     │◄───────────►│  ESP32-C3 Mini   │◄─────────►│  iMac Display   │
 │                 │             │                  │           │   Brightness    │
 │ • Python Script │             │ • Web Interface  │           │    Control      │
 │ • Keyboard      │             │ • HTTP API       │           │                 │
@@ -17,7 +17,7 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 └─────────────────┘             └──────────────────┘           └─────────────────┘
          │                               │
          │ HTTP API                      │ imacdimmer.local
-         │ imacdisplay.py -s 70         │ http://imacdimmer.local
+         │ imacdisplay.py -s 70          │ http://imacdimmer.local
          │                               │
          └───────────────────────────────┘
 ```
