@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
 
 // WiFi credentials
 const char* ssid = "NightAndDay";
@@ -10,7 +11,7 @@ const char* password = "9211258hkr";
 WebServer server(80);
 
 // Firmware version
-const char* FIRMWARE_VERSION = "1.5.0-http-fallback";
+const char* FIRMWARE_VERSION = "1.6.0-dynamic-discovery";
 const char* BUILD_DATE = __DATE__ " " __TIME__;
 
 // Define the PWM properties
@@ -69,11 +70,24 @@ void setup() {
   connectToWifi();
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("WiFi connected");
+    
+    // Start mDNS service
+    if (MDNS.begin("imacdimmer")) {
+      Serial.println("mDNS responder started");
+      Serial.println("Hostname: imacdimmer.local");
+      MDNS.addService("http", "tcp", 80);
+      MDNS.addServiceTxt("http", "tcp", "device", "ESP32-C3");
+      MDNS.addServiceTxt("http", "tcp", "function", "brightness_control");
+    } else {
+      Serial.println("Error starting mDNS");
+    }
+    
     setupWebServer();
     server.begin();
     Serial.println("Web server started");
     Serial.print("Access web interface at: http://");
     Serial.println(WiFi.localIP());
+    Serial.println("Or via: http://imacdimmer.local");
   }
 }
 
@@ -82,6 +96,8 @@ String inputBuffer;
 void loop() {
   // Handle web server requests (non-blocking)
   server.handleClient();
+  
+  // Handle mDNS (ESP32 doesn't need explicit update)
   
   // Check WiFi connection (only occasionally)
   static unsigned long lastWiFiCheck = 0;

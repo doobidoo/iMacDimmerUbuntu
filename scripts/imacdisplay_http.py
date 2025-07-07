@@ -39,76 +39,154 @@ def save_config(brightness=None, esp32_ip=None):
         print(f"Error saving config: {e}")
 
 def discover_esp32():
-    """Try to discover ESP32 IP address"""
-    # Try common IP ranges
+    """Try to discover ESP32 IP address using multiple methods"""
     import socket
-    import threading
-    import time
+    import subprocess
+    import re
     
     def check_ip(ip):
         try:
-            response = requests.get(f"http://{ip}/version", timeout=2)
+            response = requests.get(f"http://{ip}/version", timeout=1)
             if response.status_code == 200 and "firmware_version" in response.text:
-                print(f"Found ESP32 at {ip}")
                 return ip
         except:
             pass
         return None
     
-    # Get local network
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
-    network = '.'.join(local_ip.split('.')[:-1])
+    print("🔍 Discovering ESP32...")
     
-    print(f"Scanning network {network}.x for ESP32...")
+    # Method 1: Check ARP table for known MAC address prefix (ESP32 OUI)
+    try:
+        result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            # Look for Espressif MAC addresses (common OUIs: 10:00:3b, 24:6f:28, etc.)
+            esp_ouis = ['10:00:3b', '24:6f:28', '30:ae:a4', '7c:df:a1', 'cc:50:e3']
+            for line in result.stdout.split('\n'):
+                for oui in esp_ouis:
+                    if oui in line.lower():
+                        ip_match = re.search(r'\(([\d.]+)\)', line)
+                        if ip_match:
+                            ip = ip_match.group(1)
+                            print(f"📡 Found ESP32 MAC in ARP table: {ip}")
+                            if check_ip(ip):
+                                return ip
+    except:
+        pass
     
-    # Check common IPs first
-    common_ips = [f"{network}.{i}" for i in [100, 101, 102, 200, 201, 202]]
-    for ip in common_ips:
-        result = check_ip(ip)
-        if result:
-            return result
+    # Method 2: mDNS discovery
+    try:
+        result = subprocess.run(['avahi-browse', '-t', '-r', '_http._tcp'], 
+                              capture_output=True, text=True, timeout=10)
+        if result.returncode == 0:
+            for line in result.stdout.split('\n'):
+                if 'esp32' in line.lower() or 'arduino' in line.lower():
+                    ip_match = re.search(r'address = \[([\d.]+)\]', line)
+                    if ip_match:
+                        ip = ip_match.group(1)
+                        print(f"📡 Found ESP32 via mDNS: {ip}")
+                        if check_ip(ip):
+                            return ip
+    except:
+        pass
     
+    # Method 3: Network scan (local networks only)
+    try:
+        # Get all local network interfaces
+        result = subprocess.run(['ip', 'route'], capture_output=True, text=True, timeout=5)
+        networks = []
+        for line in result.stdout.split('\n'):
+            match = re.search(r'(\d+\.\d+\.\d+)\.\d+/\d+.*src (\d+\.\d+\.\d+\.\d+)', line)
+            if match and not match.group(1).startswith('169.254'):  # Skip link-local
+                networks.append(match.group(1))
+        
+        networks = list(set(networks))  # Remove duplicates
+        print(f"🌐 Scanning networks: {networks}")
+        
+        # Quick scan of common device IPs
+        common_endings = [27, 100, 101, 102, 200, 201, 202, 150, 151, 152]
+        for network in networks[:3]:  # Limit to 3 networks
+            for ending in common_endings:
+                ip = f"{network}.{ending}"
+                if check_ip(ip):
+                    print(f"📡 Found ESP32 via network scan: {ip}")
+                    return ip
+    except:
+        pass
+    
+    return None
+
+def try_hostname_first():
+    """Try to connect via mDNS hostname first"""
+    try:
+        response = requests.get("http://imacdimmer.local/version", timeout=3)
+        if response.status_code == 200 and "firmware_version" in response.text:
+            return "imacdimmer.local"
+    except:
+        pass
     return None
 
 def http_request(endpoint, params=None):
     config = load_config()
-    esp32_ip = config.get('esp32_ip')
+    esp32_address = config.get('esp32_ip')
     
-    if not esp32_ip or esp32_ip == '192.168.1.100':
-        print("ESP32 IP not configured. Trying to discover...")
+    # Always try hostname first (mDNS)
+    hostname = try_hostname_first()
+    if hostname:
+        esp32_address = hostname
+        # Update config to remember this works
+        save_config(esp32_ip=hostname)
+    
+    # If no address or hostname failed, discover
+    if not esp32_address or esp32_address == '192.168.1.100':
+        print("ESP32 address not configured. Trying to discover...")
         discovered_ip = discover_esp32()
         if discovered_ip:
-            esp32_ip = discovered_ip
-            save_config(esp32_ip=esp32_ip)
+            esp32_address = discovered_ip
+            save_config(esp32_ip=esp32_address)
         else:
             print("Could not discover ESP32. Please check your network connection.")
             return None
     
-    try:
-        url = f"http://{esp32_ip}{endpoint}"
-        response = requests.get(url, params=params, timeout=5)
-        if response.status_code == 200:
-            return response.text
-        else:
-            print(f"HTTP Error {response.status_code}: {response.text}")
-            return None
-    except requests.exceptions.ConnectionError:
-        print(f"Could not connect to ESP32 at {esp32_ip}")
-        print("Trying to discover ESP32...")
-        discovered_ip = discover_esp32()
-        if discovered_ip and discovered_ip != esp32_ip:
-            save_config(esp32_ip=discovered_ip)
-            try:
-                url = f"http://{discovered_ip}{endpoint}"
-                response = requests.get(url, params=params, timeout=5)
+    # Try the request
+    def try_request(address):
+        try:
+            url = f"http://{address}{endpoint}"
+            response = requests.get(url, params=params, timeout=5)
+            if response.status_code == 200:
                 return response.text
-            except:
-                pass
-        return None
-    except Exception as e:
-        print(f"HTTP request failed: {e}")
-        return None
+            else:
+                print(f"HTTP Error {response.status_code}: {response.text}")
+                return None
+        except requests.exceptions.ConnectionError:
+            return None
+        except Exception as e:
+            print(f"HTTP request failed: {e}")
+            return None
+    
+    # Try current address
+    result = try_request(esp32_address)
+    if result:
+        return result
+    
+    # If failed, try hostname as fallback
+    if esp32_address != "imacdimmer.local":
+        print(f"Could not connect to ESP32 at {esp32_address}")
+        print("Trying hostname: imacdimmer.local...")
+        result = try_request("imacdimmer.local")
+        if result:
+            save_config(esp32_ip="imacdimmer.local")
+            return result
+    
+    # If still failed, try discovery
+    print("Trying to discover ESP32...")
+    discovered_ip = discover_esp32()
+    if discovered_ip and discovered_ip != esp32_address:
+        save_config(esp32_ip=discovered_ip)
+        result = try_request(discovered_ip)
+        if result:
+            return result
+    
+    return None
 
 def get_brightness():
     """Get last saved brightness value"""
