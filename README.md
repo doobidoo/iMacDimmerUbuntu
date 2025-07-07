@@ -1,154 +1,323 @@
-# iMac Dimmer Ubuntu
+# iMac Dimmer Ubuntu v1.6.0
 
-ESP32-C3 based brightness control system for iMac displays with both web interface and serial communication.
+**🚀 Advanced ESP32-C3 brightness control system with zero-maintenance dynamic IP discovery**
 
-## Features
+A comprehensive solution for controlling iMac display brightness using ESP32-C3 with automatic network adaptation, multiple communication methods, and robust failover mechanisms.
 
-- **Web Interface**: Modern web-based brightness control with real-time updates
-- **Serial Communication**: Python script integration for system-level control
-- **Keyboard Shortcuts**: System-wide brightness control via hotkeys
-- **Auto-dimming Timer**: Scheduled brightness adjustments
-- **Systemd Service**: Background service for brightness restoration
+## ✨ Key Features
 
-## Hardware
+### 🌐 **Dynamic Network Discovery**
+- **mDNS hostname**: Access via `imacdimmer.local` - no IP needed
+- **Automatic IP discovery**: Finds ESP32 even when network changes
+- **Multi-layer fallback**: MAC detection, network scanning, cached addresses
+- **Zero maintenance**: Works across router reboots and DHCP changes
 
-- ESP32-C3 SuperMini Board
-- Connected to iMac display brightness control
-- PWM output on GPIO3
-- Status LED on GPIO8
+### 🔗 **Dual Communication Methods**
+- **HTTP-based control**: Robust web API with `/serial` endpoint
+- **Modern web interface**: Real-time brightness control with presets
+- **ESP32-C3 compatible**: Bypasses bootloader serial communication issues
+- **Version tracking**: Firmware verification and update management
 
-## Project Structure
+### 🎛️ **Complete System Integration**
+- **Keyboard shortcuts**: System-wide hotkey support
+- **Systemd service**: Background brightness restoration
+- **Timer automation**: Scheduled brightness adjustments
+- **Configuration caching**: Performance optimization with smart defaults
+
+## 🔧 Hardware Requirements
+
+- **ESP32-C3 SuperMini Board** (or compatible)
+- **GPIO3**: PWM output for brightness control
+- **GPIO8**: Status LED
+- **WiFi connection**: For web interface and mDNS
+
+## 📂 Project Structure
 
 ```
+iMacDimmerUbuntu/
 ├── src/
-│   └── main.cpp              # ESP32 firmware (web + serial)
+│   └── main.cpp                    # ESP32 firmware v1.6.0
 ├── scripts/
-│   ├── imacdisplay.py        # Python control script
-│   └── test_serial.py        # Serial communication test
+│   ├── imacdisplay_http.py        # Smart discovery Python script
+│   ├── ping_test.py               # Network connectivity tests
+│   └── hybrid_test.py             # Communication diagnostics
 ├── systemd/
-│   └── brightness.service    # Systemd service file
-├── platformio.ini            # PlatformIO configuration
-└── README.md                 # This file
+│   └── brightness.service         # System service configuration
+├── DYNAMIC_IP_SOLUTION.md         # Detailed technical documentation
+├── final_install.sh               # Automated installation script
+├── platformio.ini                 # PlatformIO build configuration
+└── README.md                      # This file
 ```
 
-## Installation
+## 🚀 Quick Start
 
-### 1. Flash ESP32 Firmware
+### **One-Command Installation**
 
 ```bash
-# Build and upload firmware
-cd /home/hkr/Documents/PlatformIO/Projects/iMacDimmerUbuntu
-pio run --target upload
+# Clone and install everything automatically
+git clone https://github.com/doobidoo/iMacDimmerUbuntu.git
+cd iMacDimmerUbuntu
+./final_install.sh
 ```
 
-### 2. Install Python Script
+The installation script will:
+- ✅ Test ESP32 connectivity
+- ✅ Configure optimal communication method
+- ✅ Install system scripts with dynamic discovery
+- ✅ Set up systemd service
+- ✅ Verify complete functionality
+
+## 📋 Manual Installation Steps
+
+### 1. **Flash ESP32 Firmware**
 
 ```bash
-# Copy script to system location
-sudo cp scripts/imacdisplay.py /usr/local/bin/
+# Build and upload v1.6.0 firmware
+~/.platformio/penv/bin/platformio run --target upload
+```
+
+### 2. **Configure Network Access**
+
+```bash
+# Option A: Use mDNS hostname (recommended)
+python3 scripts/imacdisplay_http.py --ip imacdimmer.local
+
+# Option B: Auto-discover ESP32
+python3 scripts/imacdisplay_http.py --discover
+
+# Option C: Manual IP configuration
+python3 scripts/imacdisplay_http.py --ip 192.168.1.100
+```
+
+### 3. **Install System Integration**
+
+```bash
+# Install system script
+sudo cp scripts/imacdisplay_http.py /usr/local/bin/imacdisplay.py
 sudo chmod +x /usr/local/bin/imacdisplay.py
-```
 
-### 3. Install Systemd Service
-
-```bash
-# Copy and enable service
+# Install and start service
 sudo cp systemd/brightness.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable brightness.service
 sudo systemctl start brightness.service
 ```
 
-## Usage
+## 🎯 Usage Examples
 
-### Web Interface
-
-1. Connect ESP32 to WiFi (automatic on boot)
-2. Access web interface at ESP32's IP address
-3. Use slider or preset buttons to control brightness
-
-### Command Line
+### **Command Line Interface**
 
 ```bash
-# Get current brightness
-imacdisplay.py -g
+# Brightness control
+imacdisplay.py -s 70          # Set to 70%
+imacdisplay.py -g             # Get current brightness
+imacdisplay.py -i 10          # Increase by 10%
+imacdisplay.py -d 10          # Decrease by 10%
 
-# Set brightness to 50%
-imacdisplay.py -s 50
+# System diagnostics
+imacdisplay.py -v             # Get firmware version
+imacdisplay.py --ping         # Test ESP32 connectivity
+imacdisplay.py --discover     # Find and save ESP32 location
 
-# Increase brightness by 10%
-imacdisplay.py -i 10
-
-# Decrease brightness by 10%
-imacdisplay.py -d 10
+# Network configuration
+imacdisplay.py --ip imacdimmer.local    # Use hostname
+imacdisplay.py --ip 192.168.1.27        # Use specific IP
 ```
 
-### Keyboard Shortcuts
+### **Web Interface**
 
-Configure keyboard shortcuts in your desktop environment to call:
-- `imacdisplay.py -i 10` (brightness up)
-- `imacdisplay.py -d 10` (brightness down)
+Access the modern web interface at:
+- **Hostname**: `http://imacdimmer.local` (recommended)
+- **IP Address**: `http://[ESP32-IP-ADDRESS]`
 
-## Configuration
+Features:
+- 🎚️ Real-time brightness slider
+- 🎯 Quick preset buttons (5%, 20%, 50%, 70%, 100%)
+- 📊 System information display
+- 📡 WiFi status and signal strength
+- 🔄 Firmware version verification
 
-### WiFi Settings
-Edit `src/main.cpp` to change WiFi credentials:
+### **Keyboard Shortcuts**
+
+Configure in your desktop environment:
+
+| Action | Command |
+|--------|---------|
+| **Brightness Up** | `imacdisplay.py -i 10` |
+| **Brightness Down** | `imacdisplay.py -d 10` |
+| **Preset Dim** | `imacdisplay.py -s 20` |
+| **Preset Bright** | `imacdisplay.py -s 80` |
+
+## 🔧 Configuration
+
+### **WiFi Credentials**
+
+Edit `src/main.cpp` before flashing:
+
 ```cpp
 const char* ssid = "YourWiFiNetwork";
 const char* password = "YourWiFiPassword";
 ```
 
-### Serial Port
-The script auto-detects the ESP32 device. To force a specific port:
+### **Network Discovery Methods**
+
+The system automatically tries (in order):
+
+1. **mDNS Hostname**: `imacdimmer.local`
+2. **Cached Address**: Last known working connection
+3. **ARP Table Scan**: ESP32 MAC address detection
+4. **Network Discovery**: Intelligent local network scanning
+5. **Manual Configuration**: User-specified addresses
+
+## 🛡️ Safety & Reliability Features
+
+### **Hardware Safety**
+- ✅ Minimum brightness enforcement (5%)
+- ✅ Safe startup brightness (70%)
+- ✅ PWM output protection
+- ✅ Status LED feedback
+
+### **Network Resilience**
+- ✅ Automatic WiFi reconnection
+- ✅ mDNS service registration
+- ✅ HTTP communication redundancy
+- ✅ Configuration caching and recovery
+
+### **System Integration**
+- ✅ Systemd service with auto-restart
+- ✅ Background brightness restoration
+- ✅ Non-blocking communication timeouts
+- ✅ Graceful degradation on failures
+
+## 🔍 Troubleshooting
+
+### **Network Connectivity**
+
 ```bash
-imacdisplay.py -p /dev/ttyACM0 -s 50
+# Test ESP32 discovery
+python3 scripts/hybrid_test.py
+
+# Test hostname resolution
+ping imacdimmer.local
+
+# Manual connectivity test
+curl http://imacdimmer.local/version
 ```
 
-## Safety Features
+### **System Service**
 
-- Minimum brightness warning at 5%
-- Safe default brightness (70%) on startup
-- Graceful fallback to serial-only mode if WiFi fails
-- Automatic WiFi reconnection
-
-## Troubleshooting
-
-### Serial Communication Issues
-1. Check if ESP32 is connected: `ls /dev/ttyACM*`
-2. Test with: `python3 scripts/test_serial.py`
-3. Kill conflicting processes: `sudo lsof /dev/ttyACM0`
-
-### Web Interface Not Working
-1. Check ESP32 serial output for IP address
-2. Verify WiFi credentials in firmware
-3. Ensure firewall allows port 80
-
-### Service Not Starting
 ```bash
 # Check service status
 systemctl status brightness.service
 
-# View logs
-journalctl -u brightness.service
+# View service logs
+journalctl -u brightness.service -f
+
+# Restart service
+sudo systemctl restart brightness.service
 ```
 
-## Development
+### **Firmware Issues**
 
-### Building
 ```bash
-pio run
+# Check web interface
+curl http://imacdimmer.local/version
+
+# Verify firmware version
+python3 scripts/imacdisplay_http.py -v
+
+# Re-flash firmware if needed
+~/.platformio/penv/bin/platformio run --target upload
 ```
 
-### Monitoring
+## 🌐 Network Compatibility
+
+### ✅ **Fully Compatible**
+- Home networks with standard routers
+- Networks with mDNS/Bonjour support
+- Standard DHCP configurations
+- Multi-VLAN setups with local access
+
+### ⚠️ **Limited Compatibility**
+- Corporate networks with mDNS blocked
+- Networks with restricted ARP access
+- Very strict firewall configurations
+
+**Workaround**: Use manual IP configuration:
 ```bash
-pio device monitor
+imacdisplay.py --ip [actual-esp32-ip]
 ```
 
-### Testing
+## 🚀 Advanced Features
+
+### **API Endpoints**
+
+The ESP32 provides a RESTful API:
+
 ```bash
-# Test serial communication
-python3 scripts/test_serial.py
+# Version information
+GET /version
 
-# Test Python script
-python3 scripts/imacdisplay.py -g
+# WiFi and system status
+GET /wifistatus
+
+# Serial command emulation
+GET /serial?cmd=version
+GET /serial?cmd=get
+GET /serial?cmd=50
+
+# LED control
+GET /led?pin=8&state=1
+
+# Direct brightness control
+GET /brightness?level=128
 ```
+
+### **Configuration Management**
+
+Settings are automatically cached in `~/.config/imacdisplay.conf`:
+
+```json
+{
+  "esp32_ip": "imacdimmer.local",
+  "last_brightness": 70
+}
+```
+
+## 📊 Technical Specifications
+
+| Component | Specification |
+|-----------|---------------|
+| **Microcontroller** | ESP32-C3 (160MHz, 320KB RAM) |
+| **WiFi** | 802.11 b/g/n, 2.4GHz |
+| **PWM Output** | GPIO3, 10kHz frequency, 8-bit resolution |
+| **Communication** | HTTP/1.1, mDNS, WebSocket ready |
+| **Power** | USB-C, 3.3V operation |
+| **Flash Memory** | 4MB with OTA support |
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly with `python3 scripts/hybrid_test.py`
+5. Submit a pull request
+
+## 📄 License
+
+This project is open source. See the repository for license details.
+
+## 🎉 Acknowledgments
+
+- **ESP32 Community**: For comprehensive hardware support
+- **PlatformIO**: For excellent development environment
+- **mDNS/Avahi**: For network service discovery
+
+---
+
+**🔗 Links**
+- **Repository**: [github.com/doobidoo/iMacDimmerUbuntu](https://github.com/doobidoo/iMacDimmerUbuntu)
+- **Technical Details**: [DYNAMIC_IP_SOLUTION.md](DYNAMIC_IP_SOLUTION.md)
+- **Latest Release**: [v1.6.0](https://github.com/doobidoo/iMacDimmerUbuntu/releases/tag/v1.6.0)
+
+*Built with ❤️ for the ESP32 and open source communities*
