@@ -1,0 +1,12 @@
+[Unit]
+Description=iMac Display Brightness Restore
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/imacdisplay.py -s 70
+RemainAfterExit=yes
+User=hkr
+
+[Install]
+WantedBy=multi-user.target
