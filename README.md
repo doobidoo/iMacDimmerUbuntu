@@ -1,6 +1,23 @@
-# iMac Dimmer Ubuntu v1.6.0
+<div align="center">
 
-**🚀 Advanced ESP32-C3 brightness control system with zero-maintenance dynamic IP discovery**
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           iMac Dimmer Ubuntu v1.6.0                         ║
+║                                                                              ║
+║    🚀 Advanced ESP32-C3 Brightness Control with Dynamic IP Discovery        ║
+║                                                                              ║
+║    ✨ Features:                                                              ║
+║    • Zero-maintenance network discovery   • Professional web interface      ║
+║    • mDNS hostname support (*.local)      • Complete system integration     ║
+║    • HTTP API with fallback mechanisms    • Keyboard shortcuts & automation ║
+║                                                                              ║
+║    🔧 Hardware: ESP32-C3 SuperMini  |  🌐 Protocol: HTTP + mDNS + WiFi      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+```
+
+</div>
+
+# iMac Dimmer Ubuntu v1.6.0
 
 A comprehensive solution for controlling iMac display brightness using ESP32-C3 with automatic network adaptation, multiple communication methods, and robust failover mechanisms.
 

@@ -1,0 +1,12 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                           iMac Dimmer Ubuntu v1.6.0                         ║
+║                                                                              ║
+║    🚀 Advanced ESP32-C3 Brightness Control with Dynamic IP Discovery        ║
+║                                                                              ║
+║    ✨ Features:                                                              ║
+║    • Zero-maintenance network discovery   • Professional web interface      ║
+║    • mDNS hostname support (*.local)      • Complete system integration     ║
+║    • HTTP API with fallback mechanisms    • Keyboard shortcuts & automation ║
+║                                                                              ║
+║    🔧 Hardware: ESP32-C3 SuperMini  |  🌐 Protocol: HTTP + mDNS + WiFi      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
