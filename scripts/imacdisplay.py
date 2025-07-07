@@ -79,9 +79,23 @@ def setup_serial(port=None, exclusive=True):
             ser.close()
         except:
             pass
-        ser = serial.Serial(port, 115200, timeout=2, exclusive=exclusive, 
-                          dsrdtr=False, rtscts=False)
-        time.sleep(2)  # Wait for ESP32 to be ready after potential reset
+        # Open serial with specific settings to avoid ESP32-C3 bootloader mode
+        ser = serial.Serial()
+        ser.port = port
+        ser.baudrate = 115200
+        ser.timeout = 2
+        ser.dsrdtr = False
+        ser.rtscts = False
+        ser.xonxoff = False
+        ser.exclusive = exclusive
+        
+        # Open connection
+        ser.open()
+        
+        # Wait for ESP32 to boot and clear any bootloader messages
+        time.sleep(3)
+        ser.reset_input_buffer()
+        ser.reset_output_buffer()
         return ser
     except serial.SerialException as e:
         # If exclusive lock failed, try non-exclusive if requested

@@ -10,7 +10,7 @@ const char* password = "9211258hkr";
 WebServer server(80);
 
 // Firmware version
-const char* FIRMWARE_VERSION = "1.3.0-debug-serial";
+const char* FIRMWARE_VERSION = "1.5.0-http-fallback";
 const char* BUILD_DATE = __DATE__ " " __TIME__;
 
 // Define the PWM properties
@@ -33,14 +33,24 @@ void setup() {
   // Wait for USB to initialize
   delay(1000);
   
-  // Configure Serial communication
+  // Configure Serial communication with explicit settings
   Serial.begin(115200);
-  while (!Serial) { delay(10); }
-  Serial.println("ESP32-C3 SuperMini iMac Dimmer Starting...");
+  Serial.setDebugOutput(true);
+  delay(100);
+  
+  // Force serial output
+  for (int i = 0; i < 5; i++) {
+    Serial.println("=== ESP32-C3 SuperMini iMac Dimmer Starting ===");
+    Serial.flush();
+    delay(100);
+  }
+  
   Serial.print("Firmware Version: ");
   Serial.println(FIRMWARE_VERSION);
   Serial.print("Build Date: ");
   Serial.println(BUILD_DATE);
+  Serial.println("Serial initialization complete!");
+  Serial.flush();
   
   // Configure status LED
   pinMode(ledPin, OUTPUT);
@@ -196,6 +206,40 @@ void setupWebServer() {
     json += "\"build_date\": \"" + String(BUILD_DATE) + "\"";
     json += "}";
     server.send(200, "application/json", json);
+  });
+
+  server.on("/serial", HTTP_GET, []() {
+    if (server.hasArg("cmd")) {
+      String cmd = server.arg("cmd");
+      String response = "";
+      
+      if (cmd == "version") {
+        response = "Firmware: " + String(FIRMWARE_VERSION) + ", Build: " + String(BUILD_DATE);
+      } else if (cmd == "ping") {
+        response = "pong";
+      } else if (cmd == "get") {
+        int percent = map(brightness, 0, 255, 0, 100);
+        response = "Current brightness: " + String(percent) + "%";
+      } else if (cmd.toInt() > 0 && cmd.toInt() <= 100) {
+        int percentBrightness = constrain(cmd.toInt(), 0, 100);
+        int pwmValue = map(percentBrightness, 0, 100, 0, 255);
+        ledcWrite(pwmChannel, pwmValue);
+        brightness = pwmValue;
+        
+        // Blink LED to show command received
+        digitalWrite(ledPin, LOW);
+        delay(50);
+        digitalWrite(ledPin, HIGH);
+        
+        response = "Brightness set to: " + String(percentBrightness) + "%";
+      } else {
+        response = "Unknown command: " + cmd;
+      }
+      
+      server.send(200, "text/plain", response);
+    } else {
+      server.send(400, "text/plain", "Missing 'cmd' parameter");
+    }
   });
 
   server.on("/led", HTTP_GET, []() {
