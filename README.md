@@ -4,6 +4,24 @@
 
 A comprehensive solution for controlling iMac display brightness using ESP32-C3 with automatic network adaptation, multiple communication methods, and robust failover mechanisms.
 
+## 🏗️ System Architecture
+
+```
+┌─────────────────┐    WiFi     ┌──────────────────┐    PWM    ┌─────────────────┐
+│   Ubuntu PC     │◄──────────►│  ESP32-C3 Mini   │◄─────────►│  iMac Display   │
+│                 │             │                  │           │   Brightness    │
+│ • Python Script │             │ • Web Interface  │           │    Control      │
+│ • Keyboard      │             │ • HTTP API       │           │                 │
+│ • Systemd       │             │ • mDNS Service   │           │                 │
+│ • Web Browser   │             │ • Version Track  │           │                 │
+└─────────────────┘             └──────────────────┘           └─────────────────┘
+         │                               │
+         │ HTTP API                      │ imacdimmer.local
+         │ imacdisplay.py -s 70         │ http://imacdimmer.local
+         │                               │
+         └───────────────────────────────┘
+```
+
 ## ✨ Key Features
 
 ### 🌐 **Dynamic Network Discovery**
@@ -26,10 +44,24 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 
 ## 🔧 Hardware Requirements
 
-- **ESP32-C3 SuperMini Board** (or compatible)
+<div align="center">
+  <img src="images/esp32-c3-supermini.webp" alt="ESP32-C3 SuperMini Board" width="400"/>
+  <p><em>ESP32-C3 SuperMini Development Board</em></p>
+</div>
+
+### **Required Components:**
+- **ESP32-C3 SuperMini Board** (shown above)
 - **GPIO3**: PWM output for brightness control
 - **GPIO8**: Status LED
 - **WiFi connection**: For web interface and mDNS
+
+### **Board Specifications:**
+- **Microcontroller**: ESP32-C3 (160MHz, 320KB RAM)
+- **Flash Memory**: 4MB
+- **WiFi**: 802.11 b/g/n (2.4GHz)
+- **USB**: USB-C for programming and power
+- **Size**: Ultra-compact form factor
+- **GPIO**: 13 digital I/O pins
 
 ## 📂 Project Structure
 
@@ -126,16 +158,28 @@ imacdisplay.py --ip 192.168.1.27        # Use specific IP
 
 ### **Web Interface**
 
-Access the modern web interface at:
-- **Hostname**: `http://imacdimmer.local` (recommended)
-- **IP Address**: `http://[ESP32-IP-ADDRESS]`
-
-Features:
-- 🎚️ Real-time brightness slider
-- 🎯 Quick preset buttons (5%, 20%, 50%, 70%, 100%)
-- 📊 System information display
-- 📡 WiFi status and signal strength
-- 🔄 Firmware version verification
+<div align="center">
+  <table>
+    <tr>
+      <td><strong>🌐 Access Methods</strong></td>
+      <td><strong>🎛️ Interface Features</strong></td>
+    </tr>
+    <tr>
+      <td>
+        • <code>http://imacdimmer.local</code> (recommended)<br>
+        • <code>http://[ESP32-IP-ADDRESS]</code><br>
+        • Auto-discovery enabled
+      </td>
+      <td>
+        • 🎚️ Real-time brightness slider<br>
+        • 🎯 Quick preset buttons (5%, 20%, 50%, 70%, 100%)<br>
+        • 📊 System information display<br>
+        • 📡 WiFi status and signal strength<br>
+        • 🔄 Firmware version verification
+      </td>
+    </tr>
+  </table>
+</div>
 
 ### **Keyboard Shortcuts**
 
