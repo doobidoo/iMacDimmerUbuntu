@@ -4,3 +4,4 @@
 .vscode/launch.json
 .vscode/ipch
 .env
+scripts/__pycache__/auto_dimmer.cpython-312.pyc
