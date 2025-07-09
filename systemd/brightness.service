@@ -6,7 +6,7 @@ After=multi-user.target
 Type=oneshot
 ExecStart=/usr/local/bin/imacdisplay.py -s 70
 RemainAfterExit=yes
-User=hkr
+User=user
 
 [Install]
 WantedBy=multi-user.target

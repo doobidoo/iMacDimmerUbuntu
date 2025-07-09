@@ -3,9 +3,17 @@
 #include <WebServer.h>
 #include <ESPmDNS.h>
 
-// WiFi credentials
-const char* ssid = "YOUR_SSID_HERE";
-const char* password = "YOUR_PASSWORD_HERE";
+// WiFi credentials from environment variables
+#ifndef WIFI_SSID
+#define WIFI_SSID "YOUR_SSID_HERE"
+#endif
+
+#ifndef WIFI_PASSWORD
+#define WIFI_PASSWORD "YOUR_PASSWORD_HERE"
+#endif
+
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
 
 // Web server
 WebServer server(80);
