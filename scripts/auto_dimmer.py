@@ -14,17 +14,29 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 # Import our brightness control
-sys.path.append(str(Path(__file__).parent))
+# Try multiple import methods to handle different installation scenarios
 try:
+    # First try direct import (when both scripts are in same directory)
     from imacdisplay_http import http_request, save_config, load_config
 except ImportError:
-    print("Error: Could not import imacdisplay_http module")
-    sys.exit(1)
+    try:
+        # Try importing from system location
+        sys.path.insert(0, '/usr/local/bin')
+        from imacdisplay import http_request, save_config, load_config
+    except ImportError:
+        # Try importing from parent directory (development mode)
+        sys.path.append(str(Path(__file__).parent))
+        try:
+            from imacdisplay_http import http_request, save_config, load_config
+        except ImportError:
+            print("Error: Could not import brightness control module")
+            print("Make sure imacdisplay.py is installed in /usr/local/bin/")
+            sys.exit(1)
 
 class AutoDimmer:
-    def __init__(self, idle_minutes=10, dim_level=5, check_interval=30):
+    def __init__(self, idle_minutes=10, dim_level=0, check_interval=30):
         self.idle_minutes = idle_minutes
-        self.dim_level = dim_level  # Minimum safe brightness level
+        self.dim_level = dim_level  # Brightness level when dimmed (can be 0 for complete black)
         self.check_interval = check_interval  # How often to check idle time (seconds)
         
         self.original_brightness = None
@@ -243,8 +255,8 @@ def main():
     parser = argparse.ArgumentParser(description='Automatic brightness dimmer with idle detection')
     parser.add_argument('-m', '--minutes', type=int, default=10, 
                        help='Minutes of idle time before dimming (default: 10)')
-    parser.add_argument('-l', '--level', type=int, default=5,
-                       help='Brightness level when dimmed (default: 5%%)')
+    parser.add_argument('-l', '--level', type=int, default=0,
+                       help='Brightness level when dimmed (default: 0%%)')
     parser.add_argument('-i', '--interval', type=int, default=30,
                        help='Check interval in seconds (default: 30)')
     parser.add_argument('-t', '--test', action='store_true',
