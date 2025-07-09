@@ -111,6 +111,11 @@ iMacDimmerUbuntu/
 # Clone and install everything automatically
 git clone https://github.com/doobidoo/iMacDimmerUbuntu.git
 cd iMacDimmerUbuntu
+
+# Set up WiFi credentials
+cp .env.example .env
+# Edit .env with your WiFi credentials
+
 ./final_install.sh
 ```
 
@@ -126,6 +131,10 @@ The installation script will:
 ### 1. **Flash ESP32 Firmware**
 
 ```bash
+# Set up WiFi credentials first
+cp .env.example .env
+# Edit .env with your WiFi SSID and password
+
 # Build and upload v1.6.0 firmware
 ~/.platformio/penv/bin/platformio run --target upload
 ```
@@ -246,12 +255,25 @@ sudo systemctl start auto-dimmer.service
 
 ### **WiFi Credentials**
 
-Edit `src/main.cpp` before flashing:
+WiFi credentials are now managed through environment variables for security:
 
-```cpp
-const char* ssid = "YourWiFiNetwork";
-const char* password = "YourWiFiPassword";
-```
+1. **Create a `.env` file** in the project root:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env`** with your WiFi credentials:
+   ```
+   WIFI_SSID=YourWiFiNetwork
+   WIFI_PASSWORD=YourWiFiPassword
+   ```
+
+3. **Build and flash** - credentials are injected at build time:
+   ```bash
+   ~/.platformio/penv/bin/platformio run --target upload
+   ```
+
+**Note**: The `.env` file is gitignored to prevent accidental credential exposure.
 
 ### **Network Discovery Methods**
 
@@ -262,6 +284,16 @@ The system automatically tries (in order):
 3. **ARP Table Scan**: ESP32 MAC address detection
 4. **Network Discovery**: Intelligent local network scanning
 5. **Manual Configuration**: User-specified addresses
+
+## 🔐 Security Considerations
+
+### **WiFi Credentials Management**
+- ✅ Credentials stored in `.env` file (not in source code)
+- ✅ Environment variables injected at build time
+- ✅ `.env` file excluded from git repository
+- ✅ Example template provided (`.env.example`)
+
+**Important**: If you've previously committed credentials to git, change your WiFi password immediately as git history retains old commits.
 
 ## 🛡️ Safety & Reliability Features
 
