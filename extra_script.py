@@ -3,7 +3,9 @@ import os
 
 # Parse .env file manually
 env_vars = {}
-env_file = os.path.join(os.path.dirname(__file__), '.env')
+# Get the project directory from the environment
+project_dir = env.subst("$PROJECT_DIR")
+env_file = os.path.join(project_dir, '.env')
 
 if os.path.exists(env_file):
     with open(env_file, 'r') as f:

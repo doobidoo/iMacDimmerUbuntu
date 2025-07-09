@@ -153,7 +153,7 @@ void loop() {
         } else if (inputBuffer.equals("ping")) {
           // Simple ping command
           Serial.println("pong");
-        } else if (isDigit(inputBuffer.charAt(0))) {
+        } else if (inputBuffer.charAt(0) >= '0' && inputBuffer.charAt(0) <= '9') {
           int percentBrightness = constrain(inputBuffer.toInt(), 0, 100);
           int pwmValue = map(percentBrightness, 0, 100, 0, 255);
           
@@ -244,7 +244,7 @@ void setupWebServer() {
       } else if (cmd == "get") {
         int percent = map(brightness, 0, 255, 0, 100);
         response = "Current brightness: " + String(percent) + "%";
-      } else if (cmd.toInt() > 0 && cmd.toInt() <= 100) {
+      } else if ((cmd == "0" || cmd.toInt() > 0) && cmd.toInt() <= 100) {
         int percentBrightness = constrain(cmd.toInt(), 0, 100);
         int pwmValue = map(percentBrightness, 0, 100, 0, 255);
         ledcWrite(pwmChannel, pwmValue);
