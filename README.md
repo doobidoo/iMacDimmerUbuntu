@@ -69,9 +69,30 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 
 ### **Required Components:**
 - **ESP32-C3 SuperMini Board** (shown above)
-- **GPIO3**: PWM output for brightness control
-- **GPIO8**: Status LED
-- **WiFi connection**: For web interface and mDNS
+- **PCI-E 6-pin extension cable or splitter** (to intercept PWM signal)
+- **USB cable** for ESP32
+- **Basic soldering equipment**
+- **Wire connectors** (optional, for easier connections)
+
+### **Hardware Setup:**
+
+1. **Access the LCD Driver Board**
+   - Open the iMac and locate the LCD driver board
+   - Identify the PCI-E 6-pin cable connected to the LCD
+
+2. **Intercept the PWM Signal**
+   - Cut the PWM wire on your extension cable (typically bottom right pin)
+   - Connect the PWM wire to **GPIO3** on the ESP32
+   - Ensure proper grounding between ESP32 and iMac
+
+3. **Connect the ESP32**
+   - Connect ESP32 to a USB port for power and programming
+   - Use GPIO3 for PWM output (brightness control)
+   - GPIO8 is used for status LED
+
+4. **Additional Setup**
+   - Install `mbpfan` for fan control: `sudo apt install mbpfan`
+   - This prevents fan issues when intercepting the PWM signal
 
 ### **Board Specifications:**
 - **Microcontroller**: ESP32-C3 (160MHz, 320KB RAM)
@@ -80,6 +101,7 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 - **USB**: USB-C for programming and power
 - **Size**: Ultra-compact form factor
 - **GPIO**: 13 digital I/O pins
+- **PWM Output**: GPIO3 (10kHz, 8-bit resolution)
 
 ## 📂 Project Structure
 
@@ -433,11 +455,25 @@ Settings are automatically cached in `~/.config/imacdisplay.conf`:
 
 This project is open source. See the repository for license details.
 
+## 📚 Hardware References
+
+### **Wiring Diagrams & Guides**
+- **PCI-E 6-pin Pinout**: Standard pinout for LCD driver connections
+- **PWM Signal Location**: Bottom right pin on the 6-pin connector
+- **Detailed Wiring Guide**: [iMac GPU Upgrade & ESP32 PWM Brightness Fix](https://medium.com/@fixingthings/imac-2009-2010-2011-gpu-upgrade-fixing-led-lcd-pwm-brightness-with-an-esp32-bc32da61a0e7)
+
+### **Safety Notes**
+- Always disconnect power before working on hardware
+- Use proper grounding to prevent static damage
+- The PWM signal is typically 3.3V compatible
+- Test connections before final assembly
+
 ## 🎉 Acknowledgments
 
 - **ESP32 Community**: For comprehensive hardware support
 - **PlatformIO**: For excellent development environment
 - **mDNS/Avahi**: For network service discovery
+- **mbpfan Project**: For iMac fan control solution
 
 ---
 
@@ -445,5 +481,6 @@ This project is open source. See the repository for license details.
 - **Repository**: [github.com/doobidoo/iMacDimmerUbuntu](https://github.com/doobidoo/iMacDimmerUbuntu)
 - **Technical Details**: [DYNAMIC_IP_SOLUTION.md](DYNAMIC_IP_SOLUTION.md)
 - **Latest Release**: [v1.6.0](https://github.com/doobidoo/iMacDimmerUbuntu/releases/tag/v1.6.0)
+- **Hardware Wiring Guide**: [Medium Article by @fixingthings](https://medium.com/@fixingthings/imac-2009-2010-2011-gpu-upgrade-fixing-led-lcd-pwm-brightness-with-an-esp32-bc32da61a0e7)
 
 *Built with ❤️ for the ESP32 and open source communities*
