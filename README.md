@@ -2,7 +2,7 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                           iMac Dimmer Ubuntu v1.6.0                          ║
+║                           iMac Dimmer Ubuntu v1.7.0                          ║
 ║                                                                              ║
 ║    🚀 Advanced ESP32-C3 Brightness Control with Dynamic IP Discovery         ║
 ║                                                                              ║
@@ -17,7 +17,7 @@
 
 </div>
 
-# iMac Dimmer Ubuntu v1.6.0
+# iMac Dimmer Ubuntu v1.7.0
 
 A comprehensive solution for controlling iMac display brightness using ESP32-C3 with automatic network adaptation, multiple communication methods, and robust failover mechanisms.
 
@@ -108,7 +108,7 @@ A comprehensive solution for controlling iMac display brightness using ESP32-C3 
 ```
 iMacDimmerUbuntu/
 ├── src/
-│   └── main.cpp                    # ESP32 firmware v1.6.0
+│   └── main.cpp                    # ESP32 firmware v1.7.0
 ├── scripts/
 │   ├── imacdisplay_http.py        # Smart discovery Python script
 │   ├── auto_dimmer.py             # Automatic idle-time brightness dimmer
@@ -157,7 +157,7 @@ The installation script will:
 cp .env.example .env
 # Edit .env with your WiFi SSID and password
 
-# Build and upload v1.6.0 firmware
+# Build and upload v1.7.0 firmware
 ~/.platformio/penv/bin/platformio run --target upload
 ```
 
@@ -480,7 +480,7 @@ This project is open source. See the repository for license details.
 **🔗 Links**
 - **Repository**: [github.com/doobidoo/iMacDimmerUbuntu](https://github.com/doobidoo/iMacDimmerUbuntu)
 - **Technical Details**: [DYNAMIC_IP_SOLUTION.md](DYNAMIC_IP_SOLUTION.md)
-- **Latest Release**: [v1.6.0](https://github.com/doobidoo/iMacDimmerUbuntu/releases/tag/v1.6.0)
+- **Latest Release**: [v1.7.0](https://github.com/doobidoo/iMacDimmerUbuntu/releases/tag/v1.7.0)
 - **Hardware Wiring Guide**: [Medium Article by @fixingthings](https://medium.com/@fixingthings/imac-2009-2010-2011-gpu-upgrade-fixing-led-lcd-pwm-brightness-with-an-esp32-bc32da61a0e7)
 
 *Built with ❤️ for the ESP32 and open source communities*

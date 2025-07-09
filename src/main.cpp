@@ -19,7 +19,7 @@ const char* password = WIFI_PASSWORD;
 WebServer server(80);
 
 // Firmware version
-const char* FIRMWARE_VERSION = "1.6.0-dynamic-discovery";
+const char* FIRMWARE_VERSION = "1.7.0-safety-features";
 const char* BUILD_DATE = __DATE__ " " __TIME__;
 
 // Define the PWM properties
