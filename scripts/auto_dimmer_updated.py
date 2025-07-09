@@ -180,9 +180,15 @@ class AutoDimmer:
     def restore_brightness(self):
         """Restore original brightness"""
         if self.is_dimmed and self.original_brightness is not None:
-            print(f"😊 Restoring brightness: {self.dim_level}% → {self.original_brightness}%")
+            # Safety feature: if original brightness was 0%, restore to 10% instead
+            restore_level = self.original_brightness
+            if self.original_brightness == 0:
+                restore_level = 10
+                print(f"🔆 Safety: Restoring to 10% instead of 0%")
             
-            if self.set_brightness(self.original_brightness):
+            print(f"😊 Restoring brightness: {self.dim_level}% → {restore_level}%")
+            
+            if self.set_brightness(restore_level):
                 self.is_dimmed = False
                 self.original_brightness = None
                 return True
@@ -226,10 +232,17 @@ class AutoDimmer:
                       f"Idle: {current_idle:.0f}s, Threshold: {idle_threshold_seconds}s, "
                       f"Dimmed: {self.is_dimmed}")
                 
-                # Check if user became active (idle time decreased significantly)
-                if current_idle < 60 and self.is_dimmed:  # Less than 1 minute idle
-                    print("👋 User activity detected!")
-                    self.restore_brightness()
+                # Safety check: if brightness is 0% and user is active, restore to 10%
+                if current_idle < 60:  # User is active
+                    if self.is_dimmed:
+                        print("👋 User activity detected!")
+                        self.restore_brightness()
+                    else:
+                        # Check if screen is at 0% even when not dimmed by auto-dimmer
+                        current_brightness = self.get_current_brightness()
+                        if current_brightness == 0:
+                            print("🔆 Safety: Screen at 0%, restoring to 10%")
+                            self.set_brightness(10)
                     last_activity_time = current_time
                 
                 # Check if we should dim (idle time exceeded threshold)
